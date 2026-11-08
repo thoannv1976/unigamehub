@@ -13,6 +13,17 @@ export interface AgsScore {
   comment?: string;
 }
 
+/** One member from Names and Role Provisioning (Moodle adds ext_user_username when names are shared). */
+export interface NrpsMember {
+  user_id: string;
+  status?: string;
+  roles?: string[];
+  name?: string;
+  email?: string;
+  ext_user_username?: string;
+  lis_person_sourcedid?: string;
+}
+
 /** Insert "/scores" into the line item path, keeping any query string (Moodle uses ?type_id=). */
 export function scoresUrl(lineitem: string): string {
   const u = new URL(lineitem);
@@ -84,5 +95,29 @@ export class AgsClient {
       res = await send(await this.token(platform, [SCOPE.score]));
     }
     if (!res.ok) throw new Error(`score POST ${res.status}: ${(await res.text()).slice(0, 300)}`);
+  }
+
+  /** Reads the course membership list (follows rel="next" pages). */
+  async members(platform: Platform, url: string, maxPages = 20): Promise<NrpsMember[]> {
+    const out: NrpsMember[] = [];
+    let next: string | null = url;
+    for (let page = 0; next && page < maxPages; page++) {
+      const target: string = next;
+      const send = async (token: string) =>
+        this.fetchFn(serviceUrl(platform, target), {
+          headers: { authorization: `Bearer ${token}`, accept: 'application/vnd.ims.lti-nrps.v2.membershipcontainer+json', ...extraHeaders(platform) },
+        });
+      let res = await send(await this.token(platform, [SCOPE.nrps]));
+      if (res.status === 401) {
+        this.tokens.clear();
+        res = await send(await this.token(platform, [SCOPE.nrps]));
+      }
+      if (!res.ok) throw new Error(`memberships GET ${res.status}: ${(await res.text()).slice(0, 300)}`);
+      const body = (await res.json()) as { members?: NrpsMember[] };
+      out.push(...(body.members ?? []));
+      const link = res.headers.get('link') ?? '';
+      next = /<([^>]+)>;\s*rel="next"/.exec(link)?.[1] ?? null;
+    }
+    return out;
   }
 }

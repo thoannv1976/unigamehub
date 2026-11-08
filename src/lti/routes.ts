@@ -26,6 +26,21 @@ interface DlSession {
   exp: number;
 }
 
+/** Per resource link: where class-wide grades go (bulk results). */
+export interface LinkTarget {
+  [k: string]: unknown;
+  tenantId: string;
+  platformId: string;
+  deploymentId: string;
+  contextId?: string;
+  resourceLinkId: string;
+  gameId: string;
+  lineitem: string;
+  nrpsUrl: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface GradeTarget {
   [k: string]: unknown;
   tenantId: string;
@@ -178,12 +193,15 @@ export function registerLtiRoutes(app: FastifyInstance, deps: Deps): void {
     const hubUserId = hid('u', tenant.id, platform.issuer, sub);
     const name = str(payload.name);
     const email = str(payload.email);
+    const ext = (isRecord(payload[CLAIM.ext]) ? payload[CLAIM.ext] : {}) as Record<string, unknown>;
+    const username = str(ext.user_username);
     await store.update(COL.users, hubUserId, (cur) => ({
       tenantId: tenant.id,
       issuer: platform.issuer,
       sub,
       name: name ?? cur?.name,
       email: email ?? cur?.email,
+      username: username ?? cur?.username,
       firstSeenAt: cur?.firstSeenAt ?? now,
       lastLaunchAt: now,
       launches: Number(cur?.launches ?? 0) + 1,
@@ -214,6 +232,26 @@ export function registerLtiRoutes(app: FastifyInstance, deps: Deps): void {
       }));
     }
 
+    // Link target: one per resource link (any role). Lets the game send grades for the whole class at once
+    // (POST /api/v1/results/bulk); students are found through Names and Role Provisioning.
+    let linkTarget: string | undefined;
+    if (lineitem && scopes.includes(SCOPE.score)) {
+      const nrps = isRecord(payload[CLAIM.nrps]) ? (payload[CLAIM.nrps] as Record<string, unknown>) : undefined;
+      linkTarget = hid('lt', platform.id, deploymentId, resourceLinkId);
+      await store.update<LinkTarget>(COL.linkTargets, linkTarget, (cur) => ({
+        tenantId: tenant.id,
+        platformId: platform.id,
+        deploymentId,
+        contextId: str(ctx?.id),
+        resourceLinkId,
+        gameId: game.id,
+        lineitem,
+        nrpsUrl: str(nrps?.context_memberships_url) ?? cur?.nrpsUrl ?? null,
+        createdAt: cur?.createdAt ?? now,
+        updatedAt: now,
+      }));
+    }
+
     const launchId = rid(12);
     await store.set(COL.launches, launchId, {
       tenantId: tenant.id, platformId: platform.id, hubUserId, gameId: game.id, role,
@@ -237,11 +275,13 @@ export function registerLtiRoutes(app: FastifyInstance, deps: Deps): void {
           givenName: str(payload.given_name),
           familyName: str(payload.family_name),
           email,
+          username,
           role,
           context: ctx ? { id: str(ctx.id), title: str(ctx.title), label: str(ctx.label) } : undefined,
           resourceLink: { id: resourceLinkId, title: str(rl.title) },
           activity: str(custom.activity),
           gradeTarget,
+          linkTarget,
           launchId,
           returnUrl: str(lp.return_url),
           locale: str(lp.locale),
