@@ -13,7 +13,7 @@ Moodle ──LTI 1.3 (OIDC, Deep Linking, AGS)──► Hub ──vé đăng nh�
 ```bash
 npm install
 npm test            # 10 test: launch, chữ ký, nonce/replay, deep linking, chống trùng/ghi đè điểm, retry
-npm run dev         # http://localhost:8787 — trang cấu hình: /admin/setup
+npm run dev         # http://localhost:8787 — trang quản trị: /admin (đăng nhập bằng ADMIN_TOKEN)
 ```
 
 Dữ liệu dev nằm trong `.data/` (khóa ký, bí mật game, store JSON). `.dev/` chứa thông tin Moodle local và tài khoản test. Cả hai đều không đưa vào Git.
@@ -27,7 +27,7 @@ Dữ liệu dev nằm trong `.data/` (khóa ký, bí mật game, store JSON). `.
    `node scripts/register-platform.ts platform.json --tenant=<ma-truong> --tenant-name="..." --hub=<HUB_URL> [--games=demo,k26game1]`
 3. Trong khóa học: *Thêm hoạt động → UniGame Hub → Chọn nội dung* → chọn game → Lưu.
 
-Có thể khai báo thủ công qua giao diện Moodle; thông số xem tại `/admin/setup`.
+Có thể khai báo thủ công qua giao diện Moodle; thông số xem tại trang quản trị `/admin/setup`.
 
 ## Tích hợp một game (adapter)
 
@@ -52,6 +52,14 @@ Hub bảo đảm: điểm cũ không đè điểm mới; gửi trùng không t�
 | Store | `HUB_STORE=file` | Firestore |
 | Khóa ký | tự sinh trong `.data/` | `HUB_SIGNING_KEYS` từ Secret Manager |
 | Bí mật game | tự sinh | `GAME_SECRET_<ID>` từ Secret Manager |
-| Admin API | chỉ localhost | `ADMIN_TOKEN` |
+| Admin API | chỉ localhost | `ADMIN_TOKEN` (header `x-admin-token`) |
+| Trang quản trị `/admin` | đăng nhập (localhost) | đăng nhập bằng `ADMIN_TOKEN` → cookie phiên 8 giờ |
+
+### Trang quản trị (`/admin`)
+Đăng nhập bằng mã quản trị (`ADMIN_TOKEN`, secret `hub-admin-token`). Phiên lưu trên server (collection `admin_sessions`, chỉ lưu bản băm của mã phiên), cookie `HttpOnly; Secure; SameSite=Strict; Path=/admin`, hết hạn sau 8 giờ. Mọi form có mã CSRF; nhập sai mã 10 lần trong 15 phút bị khóa tạm thời; đăng nhập được ghi nhật ký.
+- **Tổng quan**: số trường, LMS, game đang bật, điểm đang chờ / lỗi; lượt gửi điểm gần đây; nút chạy gửi điểm ngay.
+- **Gửi điểm**: lọc theo trạng thái, xem lỗi gần nhất, **Gửi lại** lượt bị lỗi.
+- **Trường**: tạo trường, chọn game được dùng, tạm dừng.
+- **Moodle / LMS**, **Game**, **Cấu hình LTI**, **Nhật ký**: chỉ xem.
 
 Xem `.env.example`.

@@ -18,6 +18,8 @@ export interface Store {
   update<T extends Doc>(col: string, id: string, fn: (cur: T | null) => T | null): Promise<T | null>;
   /** Equality query. */
   find<T extends Doc>(col: string, where: Record<string, unknown>, limit?: number): Promise<Array<T & { id: string }>>;
+  /** Newest documents first, ordered by a string/number field (single-field index only). */
+  recent<T extends Doc>(col: string, orderField: string, limit?: number): Promise<Array<T & { id: string }>>;
 }
 
 export const COL = {
@@ -35,4 +37,5 @@ export const COL = {
   audit: 'audit_logs',
   demoTickets: 'demo_used_tickets',
   demoSessions: 'demo_sessions',
+  adminSessions: 'admin_sessions',
 } as const;
