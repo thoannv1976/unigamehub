@@ -1,0 +1,29 @@
+{
+  "name": "unigame-hub",
+  "version": "0.1.0",
+  "private": true,
+  "description": "UniGame Hub - LTI 1.3 Advantage gateway connecting Moodle with GCP/Firebase games (SSO + grade sync)",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "dev": "node --watch src/server.ts",
+    "start": "node src/server.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "register-platform": "node scripts/register-platform.ts"
+  },
+  "dependencies": {
+    "@fastify/formbody": "^8.0.2",
+    "fastify": "^5.6.0",
+    "firebase-admin": "^13.5.0",
+    "jose": "^6.1.0",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

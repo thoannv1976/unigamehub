@@ -1,0 +1,127 @@
+{
+  "games": [
+    {
+      "id": "demo",
+      "name": "Demo game (kiểm thử)",
+      "description": "Game mẫu của Hub để kiểm thử đăng nhập một lần và đồng bộ điểm.",
+      "category": "Testing",
+      "launchUrl": "${HUB_BASE_URL}/demo/",
+      "enabled": true,
+      "defaultMaxScore": 100,
+      "gradeNote": "Sinh viên tự chọn điểm để kiểm thử",
+      "activities": [
+        { "id": "round-1", "title": "Vòng 1" },
+        { "id": "round-2", "title": "Vòng 2" }
+      ]
+    },
+    {
+      "id": "k26game1",
+      "alias": "VSTEP 1",
+      "name": "English City Simulator",
+      "description": "Mô phỏng giao tiếp tiếng Anh theo nhiệm vụ trong thành phố, AI chấm theo tiêu chí.",
+      "category": "Language Learning & Assessment",
+      "launchUrl": "https://k26game1.web.app/lti-launch",
+      "enabled": false,
+      "defaultMaxScore": 100,
+      "gradeNote": "Điểm % cuối cùng của phiên (finalPercent), cập nhật khi giảng viên chấm lại",
+      "activities": [
+        { "id": "M01", "title": "M01 · Airport Check-in (B1)" },
+        { "id": "M02", "title": "M02 · Lost Luggage (B1)" },
+        { "id": "M03", "title": "M03 · Ordering Food (B1)" },
+        { "id": "M04", "title": "M04 · Handling a Wrong Bill (B2)" },
+        { "id": "M05", "title": "M05 · Asking for Academic Information (B1)" },
+        { "id": "M06", "title": "M06 · International Group Project Discussion (B2)" }
+      ],
+      "repo": "thoannv1976/k26game1",
+      "firebaseProject": "k26game1"
+    },
+    {
+      "id": "k26game2",
+      "alias": "VSTEP 2",
+      "name": "English Detective",
+      "description": "Điều tra vụ án bằng tiếng Anh, nộp báo cáo cuối cùng để AI và giảng viên chấm.",
+      "category": "Language Learning & Assessment",
+      "launchUrl": "https://k26-detective.web.app/lti-launch",
+      "enabled": false,
+      "defaultMaxScore": 100,
+      "gradeNote": "Điểm báo cáo cuối (finalPercent)",
+      "repo": "thoannv1976/k26game2",
+      "firebaseProject": "k26game1"
+    },
+    {
+      "id": "k26game3",
+      "alias": "VSTEP 3",
+      "name": "VSTEP Quest",
+      "description": "Luyện và thi thử VSTEP theo 4 kỹ năng dưới dạng hành trình.",
+      "category": "Language Learning & Assessment",
+      "launchUrl": "https://k26-vstep.web.app/lti-launch",
+      "enabled": false,
+      "defaultMaxScore": 100,
+      "gradeNote": "Điểm tổng của lượt thi/quest",
+      "repo": "thoannv1976/k26game3",
+      "firebaseProject": "k26game1"
+    },
+    {
+      "id": "k26oral",
+      "name": "OralExam AI",
+      "description": "Thi vấn đáp có AI hỗ trợ chấm; điểm chính thức do giảng viên công bố.",
+      "category": "Professional Skills Assessment",
+      "launchUrl": "https://k26oral.web.app/lti-launch",
+      "enabled": false,
+      "defaultMaxScore": 10,
+      "gradeNote": "Chỉ gửi điểm sau khi giảng viên công bố (không gửi điểm AI)",
+      "repo": "thoannv1976/k26oral",
+      "firebaseProject": "k26oral"
+    },
+    {
+      "id": "classinteractive",
+      "name": "ClassInteract AI",
+      "description": "Tương tác lớp học thời gian thực: điểm danh, câu hỏi, hoạt động nhóm.",
+      "category": "Classroom Interaction",
+      "launchUrl": "https://classinteractive.web.app/lti-launch",
+      "enabled": false,
+      "defaultMaxScore": 10,
+      "gradeNote": "Điểm tham gia sau khi giảng viên xác nhận",
+      "repo": "thoannv1976/classinteractive",
+      "firebaseProject": "classinteractive"
+    },
+    {
+      "id": "casestudyhub",
+      "name": "CaseStudyHub",
+      "description": "Học theo tình huống: nhóm phân tích case, thuyết trình, đánh giá chéo, AI phản hồi.",
+      "category": "Case Study & Problem Solving",
+      "launchUrl": "https://casestudyhub-web-iv27nu35ta-as.a.run.app/lti-launch",
+      "enabled": false,
+      "defaultMaxScore": 10,
+      "gradeNote": "Điểm cuối sau khi giảng viên công bố (nhóm + cá nhân)",
+      "repo": "thoannv1976/casestudyhub",
+      "firebaseProject": "casestudy1-509414"
+    },
+    {
+      "id": "smartwatch9",
+      "alias": "Smartwatch (bản 9)",
+      "name": "Smartwatch CEO Challenge",
+      "description": "Mô phỏng kinh doanh: điều hành công ty đồng hồ thông minh qua các quý.",
+      "category": "Business Simulation",
+      "launchUrl": "https://smartwatch-ceo-challenge-zx54tc6jra-as.a.run.app/lti-launch",
+      "enabled": false,
+      "defaultMaxScore": 100,
+      "gradeNote": "finalScore của lượt chơi chính thức (OFFICIAL)",
+      "repo": "thoannv1976/smartwatch2",
+      "firebaseProject": "smartwatch9"
+    },
+    {
+      "id": "smartwatch92",
+      "alias": "Smartwatch (bản 92)",
+      "name": "Smartwatch CEO Challenge (v1.0.0)",
+      "description": "Bản triển khai thứ hai của Smartwatch CEO Challenge.",
+      "category": "Business Simulation",
+      "launchUrl": "https://smartwatch-ceo-challenge-6nrzalf72q-as.a.run.app/lti-launch",
+      "enabled": false,
+      "defaultMaxScore": 100,
+      "gradeNote": "finalScore của lượt chơi chính thức (OFFICIAL)",
+      "repo": "thoannv1976/smartwatch2",
+      "firebaseProject": "smartwatch92"
+    }
+  ]
+}
