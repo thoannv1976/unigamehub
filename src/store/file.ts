@@ -95,4 +95,12 @@ export class FileStore implements Store {
     }
     return out;
   }
+
+  async recent<T extends Doc>(c: string, orderField: string, limit = 100): Promise<Array<T & { id: string }>> {
+    const key = (d: Doc): string => String(d[orderField] ?? '').padStart(20, '0');
+    return [...this.col(c)]
+      .sort(([, a], [, b]) => (key(a) < key(b) ? 1 : key(a) > key(b) ? -1 : 0))
+      .slice(0, limit)
+      .map(([id, d]) => ({ ...(structuredClone(d) as T), id }));
+  }
 }

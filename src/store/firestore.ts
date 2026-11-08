@@ -53,5 +53,9 @@ export async function createFirestoreStore(projectId?: string, databaseId?: stri
       const s = await q.limit(limit).get();
       return s.docs.map((d) => ({ ...(d.data() as T), id: d.id }));
     },
+    async recent<T extends Doc>(c: string, orderField: string, limit = 100) {
+      const s = await db.collection(c).orderBy(orderField, 'desc').limit(limit).get();
+      return s.docs.map((d) => ({ ...(d.data() as T), id: d.id }));
+    },
   };
 }

@@ -2,13 +2,14 @@ import formbody from '@fastify/formbody';
 import Fastify, { type FastifyInstance } from 'fastify';
 import { ZodError } from 'zod';
 import { registerAdminRoutes } from './admin.ts';
+import { registerConsole } from './console.ts';
 import { registerDemoGame } from './demo.ts';
 import type { Deps } from './deps.ts';
 import { registerLtiRoutes } from './lti/routes.ts';
 import { registerResultRoutes } from './results.ts';
 import { GradeSync } from './sync.ts';
 import { HttpError } from './util.ts';
-import { errorPage } from './views.ts';
+import { adminErrorPage, errorPage } from './views.ts';
 
 export interface HubApp {
   app: FastifyInstance;
@@ -37,6 +38,9 @@ export async function buildApp(deps: Deps, opts: { logger?: boolean } = {}): Pro
     if (wantsHtml) {
       return reply.status(status).header('content-type', 'text/html; charset=utf-8').send(errorPage('Không mở được hoạt động', message));
     }
+    if (req.url === '/admin' || req.url.startsWith('/admin/')) {
+      return reply.status(status).header('content-type', 'text/html; charset=utf-8').send(adminErrorPage(message));
+    }
     return reply.status(status).send({ error: code, message });
   });
 
@@ -44,10 +48,10 @@ export async function buildApp(deps: Deps, opts: { logger?: boolean } = {}): Pro
   // Cloud Run reserves /healthz, so /health is the public probe.
   app.get('/health', async () => ({ ok: true, env: deps.cfg.env }));
   app.get('/healthz', async () => ({ ok: true, env: deps.cfg.env }));
-  app.get('/', async (_req, reply) => reply.redirect('/admin/setup'));
   registerLtiRoutes(app, deps);
   registerResultRoutes(app, deps, sync);
   registerAdminRoutes(app, deps, sync);
+  registerConsole(app, deps, sync);
   if (deps.catalog.get('demo')?.enabled) registerDemoGame(app, deps);
   return { app, sync };
 }
