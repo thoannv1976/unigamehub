@@ -11,6 +11,8 @@ export const CLAIM = {
   custom: `${P}/claim/custom`,
   launchPresentation: `${P}/claim/launch_presentation`,
   toolPlatform: `${P}/claim/tool_platform`,
+  /** Moodle puts ext_* launch parameters here (e.g. user_username). */
+  ext: `${P}/claim/ext`,
   ags: 'https://purl.imsglobal.org/spec/lti-ags/claim/endpoint',
   nrps: 'https://purl.imsglobal.org/spec/lti-nrps/claim/namesroleservice',
   dlSettings: 'https://purl.imsglobal.org/spec/lti-dl/claim/deep_linking_settings',

@@ -30,6 +30,7 @@ export const COL = {
   users: 'lti_user_mappings',
   launches: 'launches',
   gradeTargets: 'grade_targets',
+  linkTargets: 'link_targets',
   dlSessions: 'dl_sessions',
   resultJtis: 'result_jtis',
   gradeRecords: 'grade_records',

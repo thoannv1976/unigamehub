@@ -169,9 +169,15 @@
       "launchUrl": "https://classinteractive.web.app/lti-launch",
       "enabled": false,
       "defaultMaxScore": 10,
-      "gradeNote": "Điểm tham gia sau khi giảng viên xác nhận",
+      "gradeNote": "Điểm tham gia của lớp học phần (0–100, Moodle quy về thang 10); chỉ gửi khi giảng viên xác nhận điểm",
       "repo": "thoannv1976/classinteractive",
-      "firebaseProject": "classinteractive"
+      "firebaseProject": "classinteractive",
+      "activities": [
+        {
+          "id": "class",
+          "title": "Điểm tham gia của lớp học phần"
+        }
+      ]
     },
     {
       "id": "casestudyhub",

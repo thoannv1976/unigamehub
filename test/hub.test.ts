@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createLocalJWKSet, exportJWK, generateKeyPair, jwtVerify, SignJWT, type JWTPayload } from 'jose';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { createResultToken, verifyLaunchTicket } from '../sdk/index.ts';
+import { createBulkResultToken, createResultToken, verifyLaunchTicket } from '../sdk/index.ts';
 import { buildApp, type HubApp } from '../src/app.ts';
 import { GameSecrets, loadCatalog } from '../src/catalog.ts';
 import type { Config } from '../src/config.ts';
@@ -12,11 +12,13 @@ import { ephemeralKeyRing } from '../src/keys.ts';
 import { CLAIM, SCOPE } from '../src/lti/claims.ts';
 import { scoresUrl, serviceUrl } from '../src/lti/ags.ts';
 import { FileStore } from '../src/store/file.ts';
+import { COL } from '../src/store/types.ts';
 
 const HUB = 'http://hub.test';
 const ISS = 'http://moodle.test';
 const CID = 'client-abc';
 const LINEITEM = `${ISS}/mod/lti/services.php/2/lineitems/5/lineitem?type_id=1`;
+const MEMBERSHIPS = `${ISS}/mod/lti/services.php/CourseSection/2/bindings/1/memberships`;
 
 interface Env {
   hub: HubApp;
@@ -24,6 +26,7 @@ interface Env {
   platformKey: CryptoKey;
   scores: Array<{ url: string; body: Record<string, unknown> }>;
   tokenCalls: number;
+  members: Array<Record<string, unknown>>;
 }
 
 async function setup(): Promise<Env> {
@@ -33,12 +36,15 @@ async function setup(): Promise<Env> {
   };
   const { publicKey, privateKey } = await generateKeyPair('RS256');
   const platformJwks = createLocalJWKSet({ keys: [{ ...(await exportJWK(publicKey)), kid: 'pk1', alg: 'RS256' }] });
-  const env = { scores: [], tokenCalls: 0 } as unknown as Env;
+  const env = { scores: [], tokenCalls: 0, members: [] } as unknown as Env;
   const fakeFetch: typeof fetch = async (input, init) => {
     const url = String(input);
     if (url === `${ISS}/mod/lti/token.php`) {
       env.tokenCalls++;
       return new Response(JSON.stringify({ access_token: 'tok', expires_in: 3600 }), { status: 200 });
+    }
+    if (url === MEMBERSHIPS) {
+      return new Response(JSON.stringify({ id: url, members: env.members }), { status: 200, headers: { 'content-type': 'application/json' } });
     }
     if (url.startsWith(`${ISS}/`) && url.includes('/scores')) {
       env.scores.push({ url, body: JSON.parse(String(init?.body)) });
@@ -275,5 +281,71 @@ describe('helpers', () => {
       .toBe('https://abc.ngrok-free.app/mod/lti/services.php/4/lineitems/1/lineitem/scores?type_id=2');
     expect(serviceUrl(p, 'http://localhost:8080/x')).toBe('http://localhost:8080/x');
     expect(serviceUrl({ issuer: 'http://localhost' }, 'http://localhost/x')).toBe('http://localhost/x');
+  });
+});
+
+describe('bulk results (whole class)', () => {
+  let env: Env;
+  const INSTRUCTOR = ['http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor'];
+  const nrps = { [CLAIM.nrps]: { context_memberships_url: MEMBERSHIPS, service_versions: ['2.0'] } };
+  const verify = (ticket: string) => verifyLaunchTicket(ticket, { hubUrl: HUB, gameId: 'demo', jwks: async (h) => env.deps.keys.publicKeyFor(h.kid) });
+  const opts = () => ({ hubUrl: HUB, gameId: 'demo', secret: env.deps.secrets.get('demo')! });
+  const bulk = (token: string) => env.hub.app.inject({ method: 'POST', url: '/api/v1/results/bulk', payload: { result_token: token } });
+
+  beforeEach(async () => {
+    env = await setup();
+    env.members = [
+      { user_id: 'm-1', status: 'Active', roles: ['Learner'], ext_user_username: 'SV001', email: 'sv1@uni.test' },
+      { user_id: 'm-2', status: 'Active', roles: ['Learner'], ext_user_username: 'sv002', email: 'b@uni.test' },
+      { user_id: 'm-3', status: 'Inactive', roles: ['Learner'], ext_user_username: 'sv003' },
+    ];
+  });
+
+  it('gives instructors a link target and the Moodle username in the ticket', async () => {
+    const ticket = await launchAsStudent(env, { [CLAIM.roles]: INSTRUCTOR, sub: 'teacher-1', [CLAIM.ext]: { user_username: 'gv.an', lms: 'moodle-2' }, ...nrps });
+    const ctx = await verify(ticket);
+    expect(ctx.role).toBe('instructor');
+    expect(ctx.username).toBe('gv.an');
+    expect(ctx.linkTarget).toMatch(/^lt_/);
+    expect(ctx.gradeTarget).toBeUndefined();
+    const lt = await env.deps.store.get(COL.linkTargets, ctx.linkTarget!);
+    expect(lt).toMatchObject({ gameId: 'demo', lineitem: LINEITEM, nrpsUrl: MEMBERSHIPS, resourceLinkId: 'rl-1' });
+  });
+
+  it('matches rows by Hub user, username and email, posts scores and reports unmatched rows', async () => {
+    const student = await verify(await launchAsStudent(env, nrps)); // moodle-user-7 opened the activity before
+    const linkTarget = (await verify(await launchAsStudent(env, { [CLAIM.roles]: INSTRUCTOR, sub: 'teacher-1', ...nrps }))).linkTarget!;
+    const rows = [
+      { username: 'sv001', score: 80 }, // case-insensitive username
+      { email: 'B@uni.test', score: 60 },
+      { username: 'sv003', score: 70 }, // inactive member → unmatched
+      { username: 'nobody', score: 10 },
+      { hubUserId: student.hubUserId, score: 90 },
+    ];
+    const confirmedAt = '2026-11-08T10:00:00.000Z';
+    const res = await bulk(await createBulkResultToken(opts(), { linkTarget, batchId: 'snap-1', maxScore: 100, occurredAt: confirmedAt, rows }));
+    expect(res.statusCode).toBe(202);
+    expect(res.json()).toMatchObject({ status: 'accepted', matched: 3, queued: 3 });
+    expect(res.json().unmatched).toEqual([{ username: 'sv003' }, { username: 'nobody' }]);
+    await env.hub.sync.runOnce();
+    const sent = Object.fromEntries(env.scores.map((s) => [s.body.userId, s.body.scoreGiven]));
+    expect(sent).toEqual({ 'm-1': 80, 'm-2': 60, 'moodle-user-7': 90 });
+    expect(env.scores.every((s) => s.url === `${ISS}/mod/lti/services.php/2/lineitems/5/lineitem/scores?type_id=1`)).toBe(true);
+
+    // Same batch again: nothing new. A later batch with a new score updates the gradebook.
+    const again = await bulk(await createBulkResultToken(opts(), { linkTarget, batchId: 'snap-1', maxScore: 100, occurredAt: confirmedAt, rows }));
+    expect(again.json()).toMatchObject({ queued: 0, duplicate: 3 });
+    const later = await bulk(await createBulkResultToken(opts(), { linkTarget, batchId: 'snap-2', maxScore: 100, rows: [{ username: 'SV001', score: 85 }], occurredAt: '2026-11-08T11:00:00.000Z' }));
+    expect(later.json()).toMatchObject({ queued: 1 });
+    await env.hub.sync.runOnce();
+    expect(env.scores.at(-1)!.body).toMatchObject({ userId: 'm-1', scoreGiven: 85 });
+  });
+
+  it('rejects unknown link targets, other games and scores above the maximum', async () => {
+    const linkTarget = (await verify(await launchAsStudent(env, { [CLAIM.roles]: INSTRUCTOR, sub: 'teacher-1', ...nrps }))).linkTarget!;
+    expect((await bulk(await createBulkResultToken(opts(), { linkTarget: 'lt_unknown000', batchId: 'x', maxScore: 10, rows: [{ username: 'sv001', score: 5 }] }))).statusCode).toBe(404);
+    const other = { hubUrl: HUB, gameId: 'k26game1', secret: env.deps.secrets.get('k26game1')! };
+    expect((await bulk(await createBulkResultToken(other, { linkTarget, batchId: 'x', maxScore: 10, rows: [{ username: 'sv001', score: 5 }] }))).statusCode).toBe(403);
+    expect((await bulk(await createBulkResultToken(opts(), { linkTarget, batchId: 'x', maxScore: 10, rows: [{ username: 'sv001', score: 11 }] }))).statusCode).toBe(400);
   });
 });
