@@ -10,8 +10,14 @@
       "defaultMaxScore": 100,
       "gradeNote": "Sinh viên tự chọn điểm để kiểm thử",
       "activities": [
-        { "id": "round-1", "title": "Vòng 1" },
-        { "id": "round-2", "title": "Vòng 2" }
+        {
+          "id": "round-1",
+          "title": "Vòng 1"
+        },
+        {
+          "id": "round-2",
+          "title": "Vòng 2"
+        }
       ]
     },
     {
@@ -25,12 +31,30 @@
       "defaultMaxScore": 100,
       "gradeNote": "Điểm % cuối cùng của phiên (finalPercent), cập nhật khi giảng viên chấm lại",
       "activities": [
-        { "id": "M01", "title": "M01 · Airport Check-in (B1)" },
-        { "id": "M02", "title": "M02 · Lost Luggage (B1)" },
-        { "id": "M03", "title": "M03 · Ordering Food (B1)" },
-        { "id": "M04", "title": "M04 · Handling a Wrong Bill (B2)" },
-        { "id": "M05", "title": "M05 · Asking for Academic Information (B1)" },
-        { "id": "M06", "title": "M06 · International Group Project Discussion (B2)" }
+        {
+          "id": "M01",
+          "title": "M01 · Airport Check-in (B1)"
+        },
+        {
+          "id": "M02",
+          "title": "M02 · Lost Luggage (B1)"
+        },
+        {
+          "id": "M03",
+          "title": "M03 · Ordering Food (B1)"
+        },
+        {
+          "id": "M04",
+          "title": "M04 · Handling a Wrong Bill (B2)"
+        },
+        {
+          "id": "M05",
+          "title": "M05 · Asking for Academic Information (B1)"
+        },
+        {
+          "id": "M06",
+          "title": "M06 · International Group Project Discussion (B2)"
+        }
       ],
       "repo": "thoannv1976/k26game1",
       "firebaseProject": "k26game1"
@@ -44,7 +68,33 @@
       "launchUrl": "https://k26-detective.web.app/lti-launch",
       "enabled": false,
       "defaultMaxScore": 100,
-      "gradeNote": "Điểm báo cáo cuối (finalPercent)",
+      "gradeNote": "Điểm % báo cáo cuối (finalPercent), cập nhật khi giảng viên chấm lại",
+      "activities": [
+        {
+          "id": "CASE01",
+          "title": "CASE01 · The Missing Scholarship (B1)"
+        },
+        {
+          "id": "CASE02",
+          "title": "CASE02 · The Lost University Laptop (B1)"
+        },
+        {
+          "id": "CASE03",
+          "title": "CASE03 · The Mysterious Hotel Booking (B1)"
+        },
+        {
+          "id": "CASE04",
+          "title": "CASE04 · The Suspicious Online Store (B2)"
+        },
+        {
+          "id": "CASE05",
+          "title": "CASE05 · The International Business Dispute (B2)"
+        },
+        {
+          "id": "CASE06",
+          "title": "CASE06 · The Environmental Investigation (B2)"
+        }
+      ],
       "repo": "thoannv1976/k26game2",
       "firebaseProject": "k26game1"
     },
@@ -57,7 +107,45 @@
       "launchUrl": "https://k26-vstep.web.app/lti-launch",
       "enabled": false,
       "defaultMaxScore": 100,
-      "gradeNote": "Điểm tổng của lượt thi/quest",
+      "gradeNote": "Điểm 0–100 của quest/đề thi thử; phần Nói chờ giảng viên duyệt",
+      "activities": [
+        {
+          "id": "L01",
+          "title": "L01 · Airport Announcements (B1, Listening)"
+        },
+        {
+          "id": "L02",
+          "title": "L02 · University Lecture (B2, Listening)"
+        },
+        {
+          "id": "R01",
+          "title": "R01 · International Student Life (B1, Reading)"
+        },
+        {
+          "id": "R02",
+          "title": "R02 · Technology and Society (B2, Reading)"
+        },
+        {
+          "id": "W01",
+          "title": "W01 · Responding to an Email (B1, Writing)"
+        },
+        {
+          "id": "W02",
+          "title": "W02 · Discussing an Educational Issue (B2, Writing)"
+        },
+        {
+          "id": "S01",
+          "title": "S01 · Everyday Social Communication (B1, Speaking)"
+        },
+        {
+          "id": "S02",
+          "title": "S02 · Discussing Solutions to a Problem (B2, Speaking)"
+        },
+        {
+          "id": "mx1",
+          "title": "MX1 · Mini Mock Exam 1 (VSTEP, B1-B2)"
+        }
+      ],
       "repo": "thoannv1976/k26game3",
       "firebaseProject": "k26game1"
     },
