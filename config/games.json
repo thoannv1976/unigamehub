@@ -187,7 +187,7 @@
       "launchUrl": "https://casestudyhub-web-iv27nu35ta-as.a.run.app/lti-launch",
       "enabled": false,
       "defaultMaxScore": 10,
-      "gradeNote": "Chỉ điểm giảng viên đã công bố (0–100, Moodle quy về thang 10): case study = trung bình các bài đã công bố; bài tập lớn = điểm bài tập lớn",
+      "gradeNote": "Chỉ điểm giảng viên đã công bố (0–100, Moodle quy về thang 10): case study = trung bình các bài đã công bố; bài tập lớn = điểm bài tập lớn; chuyên cần = điểm chuyên cần (thang 10 × 10), chỉ gửi khi giảng viên bấm gửi",
       "repo": "thoannv1976/casestudyhub",
       "firebaseProject": "casestudy1-509414",
       "activities": [
@@ -202,6 +202,10 @@
         {
           "id": "group_project",
           "title": "Điểm bài tập lớn"
+        },
+        {
+          "id": "attendance",
+          "title": "Điểm chuyên cần"
         }
       ]
     },
