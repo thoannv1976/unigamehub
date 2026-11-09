@@ -193,16 +193,22 @@
     },
     {
       "id": "smartwatch9",
-      "alias": "Smartwatch (bản 9)",
+      "alias": "Smartwatch 9 (bản Next.js)",
       "name": "Smartwatch CEO Challenge",
-      "description": "Mô phỏng kinh doanh: điều hành công ty đồng hồ thông minh qua các quý.",
+      "description": "Mô phỏng kinh doanh: điều hành hãng đồng hồ thông minh qua 6 quý, đối đầu 5 đối thủ; có bài tập chính thức, báo cáo và bảng xếp hạng lớp.",
       "category": "Business Simulation",
-      "launchUrl": "https://smartwatch-ceo-challenge-zx54tc6jra-as.a.run.app/lti-launch",
+      "launchUrl": "https://smartwatch9.web.app/lti-launch",
       "enabled": false,
-      "defaultMaxScore": 100,
-      "gradeNote": "finalScore của lượt chơi chính thức (OFFICIAL)",
+      "defaultMaxScore": 10,
+      "gradeNote": "Điểm tổng (0–100) của lượt chính thức (OFFICIAL), tính trên server; Moodle quy về thang 10",
       "repo": "thoannv1976/smartwatch2",
-      "firebaseProject": "smartwatch9"
+      "firebaseProject": "smartwatch9",
+      "activities": [
+        {
+          "id": "official",
+          "title": "Thử thách CEO 6 quý – bài tập chính thức"
+        }
+      ]
     },
     {
       "id": "smartwatch92",
