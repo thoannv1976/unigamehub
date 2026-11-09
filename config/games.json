@@ -216,6 +216,25 @@
       "gradeNote": "finalScore của lượt chơi chính thức (OFFICIAL)",
       "repo": "thoannv1976/smartwatch2",
       "firebaseProject": "smartwatch92"
+    },
+    {
+      "id": "smartwatch6",
+      "alias": "Smartwatch 6 (bản AI Studio)",
+      "name": "Smartwatch CEO Challenge",
+      "description": "Mô phỏng kinh doanh: điều hành công ty đồng hồ thông minh qua 6 quý, đối đầu 5 đối thủ AI, có Hội đồng quản trị AI nhận xét.",
+      "category": "Business Simulation",
+      "launchUrl": "https://smartwatch6.web.app/lti-launch",
+      "enabled": false,
+      "defaultMaxScore": 10,
+      "gradeNote": "Điểm tổng (0–100) của lượt chơi chính thức, được chấm lại trên server; Moodle quy về thang 10",
+      "repo": "thoannv1976/smartwatch6",
+      "firebaseProject": "smartwatch6",
+      "activities": [
+        {
+          "id": "official",
+          "title": "Thử thách CEO 6 quý – lượt chính thức"
+        }
+      ]
     }
   ]
 }
