@@ -157,9 +157,19 @@
       "launchUrl": "https://k26oral.web.app/lti-launch",
       "enabled": false,
       "defaultMaxScore": 10,
-      "gradeNote": "Chỉ gửi điểm sau khi giảng viên công bố (không gửi điểm AI)",
+      "gradeNote": "Chỉ điểm kỳ thi giảng viên đã công bố (thang của kỳ thi, mặc định 10); phúc khảo đổi điểm thì cập nhật. Không gửi điểm AI, điểm luyện thi",
       "repo": "thoannv1976/k26oral",
-      "firebaseProject": "k26oral"
+      "firebaseProject": "k26oral",
+      "activities": [
+        {
+          "id": "app",
+          "title": "Vào app thi vấn đáp (không gửi điểm)"
+        },
+        {
+          "id": "exam",
+          "title": "Điểm kỳ thi vấn đáp (giảng viên chọn kỳ thi khi mở lần đầu)"
+        }
+      ]
     },
     {
       "id": "classinteractive",
