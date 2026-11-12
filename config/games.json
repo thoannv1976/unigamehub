@@ -273,13 +273,13 @@
     {
       "id": "digimark",
       "alias": "DIGIMARK Arena",
-      "name": "DIGIMARK Arena (Game 1 · Game 2)",
-      "description": "Game cạnh tranh 6 người (ghế trống do máy chơi) cho khóa Thị trường và Marketing số: Game 1 Đấu trường Thị phần (mô phỏng 5 quý thị trường xăng dầu – gas), Game 2 Thám tử AI (đấu nhanh bắt lỗi AI, đèn dữ liệu, prompt, KPI, khủng hoảng).",
+      "name": "DIGIMARK Arena (Game 1 · Game 2 · Game 3)",
+      "description": "Game cạnh tranh 6 người (ghế trống do máy chơi) cho khóa Thị trường và Marketing số: Game 1 Đấu trường Thị phần (mô phỏng 5 quý thị trường xăng dầu – gas), Game 2 Thám tử AI (đấu nhanh bắt lỗi AI, đèn dữ liệu, prompt, KPI, khủng hoảng), Game 3 Săn hợp đồng trọng điểm (ABM: 8 nhà máy, nhóm mua 5 vai, hạt nhựa PP).",
       "category": "Business Simulation",
       "launchUrl": "https://digimark-514506.web.app/lti-launch",
       "enabled": false,
       "defaultMaxScore": 10,
-      "gradeNote": "Thám tử AI: tỷ lệ câu đúng của trận (0–100). Đấu trường Thị phần: 70% thẻ mục tiêu ban lãnh đạo + 30% thứ hạng trong phòng (0–100). Moodle quy về thang 10; nên chọn \"lấy lần cao nhất\".",
+      "gradeNote": "Thám tử AI: tỷ lệ câu đúng của trận (0–100). Đấu trường Thị phần và Săn hợp đồng trọng điểm: 70% thẻ mục tiêu ban lãnh đạo + 30% thứ hạng trong phòng (0–100). Moodle quy về thang 10; nên chọn \"lấy lần cao nhất\".",
       "repo": "thoannv1976/digimark",
       "firebaseProject": "digimark-514506",
       "activities": [
@@ -290,6 +290,10 @@
         {
           "id": "market-share",
           "title": "Game 1 · Đấu trường Thị phần – điểm = thẻ mục tiêu + thứ hạng"
+        },
+        {
+          "id": "key-accounts",
+          "title": "Game 3 · Săn hợp đồng trọng điểm – điểm = thẻ mục tiêu + thứ hạng"
         },
         {
           "id": "arena",
