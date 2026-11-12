@@ -273,19 +273,23 @@
     {
       "id": "digimark",
       "alias": "DIGIMARK Arena",
-      "name": "DIGIMARK Arena – Thám tử AI",
-      "description": "Game đấu nhanh 6 người (ghế trống do máy chơi) cho khóa Thị trường và Marketing số: bắt lỗi bài AI viết, đèn dữ liệu, prompt, đọc số liệu, khủng hoảng, quản trị AI.",
+      "name": "DIGIMARK Arena (Game 1 · Game 2)",
+      "description": "Game cạnh tranh 6 người (ghế trống do máy chơi) cho khóa Thị trường và Marketing số: Game 1 Đấu trường Thị phần (mô phỏng 5 quý thị trường xăng dầu – gas), Game 2 Thám tử AI (đấu nhanh bắt lỗi AI, đèn dữ liệu, prompt, KPI, khủng hoảng).",
       "category": "Business Simulation",
       "launchUrl": "https://digimark-514506.web.app/lti-launch",
       "enabled": false,
       "defaultMaxScore": 10,
-      "gradeNote": "Tỷ lệ câu trả lời đúng hoàn toàn của trận (0–100, Moodle quy về thang 10), gửi khi phòng kết thúc; nên chọn chính sách \"lấy lần cao nhất\"",
+      "gradeNote": "Thám tử AI: tỷ lệ câu đúng của trận (0–100). Đấu trường Thị phần: 70% thẻ mục tiêu ban lãnh đạo + 30% thứ hạng trong phòng (0–100). Moodle quy về thang 10; nên chọn \"lấy lần cao nhất\".",
       "repo": "thoannv1976/digimark",
       "firebaseProject": "digimark-514506",
       "activities": [
         {
           "id": "ai-detective",
-          "title": "Thám tử AI – điểm = tỷ lệ câu đúng của trận"
+          "title": "Game 2 · Thám tử AI – điểm = tỷ lệ câu đúng của trận"
+        },
+        {
+          "id": "market-share",
+          "title": "Game 1 · Đấu trường Thị phần – điểm = thẻ mục tiêu + thứ hạng"
         },
         {
           "id": "arena",
