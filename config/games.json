@@ -305,7 +305,7 @@
       "id": "ecomoctgames",
       "alias": "ECOM Arena",
       "name": "ECOM Arena (E-commerce 2026)",
-      "description": "Competitive bilingual (EN/VI) games for the E-commerce 2026 course – 6-seat rooms, AI in empty seats. Game 9 Unit Economics Showdown (Ch. 9), Game 12 CEO Simulator (Ch. 12), Game 4 Market Detective (Ch. 4), Game 2 Platform Wars (Ch. 2), Game 6 CRO Battle (Ch. 6), Game 7 Ad Auction & Creator Clash (Ch. 7), Game 8 Peak Day Ops (Ch. 8), Game 1 Wave Rider (Ch. 1). / Game cạnh tranh song ngữ cho môn E-commerce 2026.",
+      "description": "Competitive bilingual (EN/VI) games for the E-commerce 2026 course – 6-seat rooms, AI in empty seats. Game 9 Unit Economics Showdown (Ch. 9), Game 12 CEO Simulator (Ch. 12), Game 4 Market Detective (Ch. 4), Game 2 Platform Wars (Ch. 2), Game 6 CRO Battle (Ch. 6), Game 7 Ad Auction & Creator Clash (Ch. 7), Game 8 Peak Day Ops (Ch. 8), Game 1 Wave Rider (Ch. 1), Game 3 Shopper Stream (Ch. 3). / Game cạnh tranh song ngữ cho môn E-commerce 2026.",
       "category": "Business Simulation",
       "launchUrl": "https://ecomoctgames.web.app/lti-launch",
       "enabled": false,
@@ -345,6 +345,10 @@
         {
           "id": "wave-rider",
           "title": "Game 1 · Wave Rider – grade = scorecard + rank"
+        },
+        {
+          "id": "shopper-stream",
+          "title": "Game 3 · Shopper Stream – grade = scorecard + rank"
         },
         {
           "id": "arena",
