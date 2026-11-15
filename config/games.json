@@ -273,8 +273,8 @@
     {
       "id": "digimark",
       "alias": "DIGIMARK Arena",
-      "name": "DIGIMARK Arena (Game 1 · Game 2 · Game 3)",
-      "description": "Game cạnh tranh 6 người (ghế trống do máy chơi) cho khóa Thị trường và Marketing số: Game 1 Đấu trường Thị phần (mô phỏng 5 quý thị trường xăng dầu – gas), Game 2 Thám tử AI (đấu nhanh bắt lỗi AI, đèn dữ liệu, prompt, KPI, khủng hoảng), Game 3 Săn hợp đồng trọng điểm (ABM: 8 nhà máy, nhóm mua 5 vai, hạt nhựa PP).",
+      "name": "DIGIMARK Arena (Game 1 – Game 5)",
+      "description": "Game cạnh tranh 6 người (ghế trống do máy chơi) cho khóa Thị trường và Marketing số: Game 1 Đấu trường Thị phần (mô phỏng 5 quý thị trường xăng dầu – gas), Game 2 Thám tử AI (đấu nhanh bắt lỗi AI, đèn dữ liệu, prompt, KPI, khủng hoảng), Game 3 Săn hợp đồng trọng điểm (ABM: 8 nhà máy, nhóm mua 5 vai, hạt nhựa PP), Game 4 Tín hiệu sớm (thông tin và phân tích thị trường: 6 nhóm thông tin, 4 chiều kiểm chứng, chuyển dịch thật và chuyển dịch giả), Game 5 Hành trình và niềm tin (6 giai đoạn hành trình khách hàng, Owned–Paid–Earned, trải nghiệm và rủi ro truyền thông số).",
       "category": "Business Simulation",
       "launchUrl": "https://digimark-514506.web.app/lti-launch",
       "enabled": false,
@@ -294,6 +294,14 @@
         {
           "id": "key-accounts",
           "title": "Game 3 · Săn hợp đồng trọng điểm – điểm = thẻ mục tiêu + thứ hạng"
+        },
+        {
+          "id": "signal-room",
+          "title": "Game 4 · Tín hiệu sớm – điểm = thẻ mục tiêu + thứ hạng"
+        },
+        {
+          "id": "journey-trust",
+          "title": "Game 5 · Hành trình và niềm tin – điểm = thẻ mục tiêu + thứ hạng"
         },
         {
           "id": "arena",
