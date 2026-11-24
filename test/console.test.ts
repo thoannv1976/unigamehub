@@ -164,3 +164,73 @@ describe('admin console', () => {
     expect(ok.json().toolUrl).toBe('https://hub.test/lti/launch');
   });
 });
+
+describe('admin console lists', () => {
+  const job = (i: number, over: Partial<SyncJob> = {}): SyncJob => ({
+    tenantId: i % 2 ? 'uni-a' : 'uni-b', status: 'done', gradeTarget: 'gt_missing', recordId: `r${i}`, attempts: 1, nextRunAt: 0, lastError: null,
+    occurredAt: new Date(Date.UTC(2026, 0, 1, 0, i)).toISOString(), payload: { scoreGiven: i, scoreMaximum: 100, activityProgress: 'Completed', gradingProgress: 'FullyGraded' },
+    createdAt: new Date(Date.UTC(2026, 0, 1, 0, i)).toISOString(), ...over,
+  });
+  const rows = (body: string) => (body.match(/<tbody>([\s\S]*?)<\/tbody>/)?.[1].match(/<tr>/g) ?? []).length;
+
+  it('paginates and filters grade deliveries', async () => {
+    const { cookie } = await signIn();
+    for (let i = 0; i < 30; i++) await deps.store.set(COL.jobs, `job${String(i).padStart(2, '0')}`, job(i, i === 7 ? { status: 'dead', lastError: 'HTTP 401 invalid_client' } : {}));
+    const p1 = await hub.app.inject({ method: 'GET', url: '/admin/jobs', headers: { cookie } });
+    expect(rows(p1.body)).toBe(25);
+    expect(p1.body).toContain('Hiển thị 1–25 / 30');
+    expect(p1.body).toContain('href="/admin/jobs?page=2"');
+    const p2 = await hub.app.inject({ method: 'GET', url: '/admin/jobs?page=2', headers: { cookie } });
+    expect(rows(p2.body)).toBe(5);
+    const byTenant = await hub.app.inject({ method: 'GET', url: '/admin/jobs?tenant=uni-a', headers: { cookie } });
+    expect(byTenant.body).toContain('/ 15');
+    const search = await hub.app.inject({ method: 'GET', url: '/admin/jobs?q=invalid_client', headers: { cookie } });
+    expect(rows(search.body)).toBe(1);
+    expect(search.body).toContain('/admin/jobs/job07/retry');
+    // The retry form returns to the same filtered page.
+    expect(search.body).toContain('name="back" value="/admin/jobs?q=invalid_client"');
+    const none = await hub.app.inject({ method: 'GET', url: '/admin/jobs?q=nothing-matches', headers: { cookie } });
+    expect(none.body).toContain('Không có lượt gửi nào khớp bộ lọc.');
+  });
+
+  it('filters the audit log by event and text', async () => {
+    const { cookie } = await signIn();
+    await post('/admin/login', { token: 'wrong' });
+    const all = await hub.app.inject({ method: 'GET', url: '/admin/audit', headers: { cookie } });
+    expect(all.body).toContain('Đăng nhập thất bại');
+    const failed = await hub.app.inject({ method: 'GET', url: '/admin/audit?action=admin_login_failed', headers: { cookie } });
+    expect(rows(failed.body)).toBe(1);
+    const text = await hub.app.inject({ method: 'GET', url: '/admin/audit?q=admin-token', headers: { cookie } });
+    expect(text.body).toContain('Đăng nhập quản trị');
+    expect(text.body).not.toContain('Đăng nhập thất bại</span>');
+  });
+
+  it('lists tenants as a table and opens the edit form on demand', async () => {
+    const { cookie } = await signIn();
+    await deps.store.set(COL.tenants, 'uni-a', { id: 'uni-a', name: 'Uni A', allowedGames: ['*'], status: 'active' });
+    const list = await hub.app.inject({ method: 'GET', url: '/admin/tenants', headers: { cookie } });
+    expect(list.body).toContain('Tất cả game');
+    expect(list.body).toContain('href="/admin/tenants?edit=uni-a#edit"');
+    expect(list.body).not.toContain('id="edit"');
+    const edit = await hub.app.inject({ method: 'GET', url: '/admin/tenants?edit=uni-a', headers: { cookie } });
+    expect(edit.body).toContain('id="edit"');
+    expect(edit.body).toContain('value="Uni A"');
+  });
+
+  it('filters games and keeps admin pages free of scripts, with a CSS-only mobile menu', async () => {
+    const { cookie } = await signIn();
+    const on = await hub.app.inject({ method: 'GET', url: '/admin/games?show=on', headers: { cookie } });
+    expect(on.body).toContain('English Detective');
+    expect(on.body).not.toContain('VSTEP Quest');
+    const search = await hub.app.inject({ method: 'GET', url: '/admin/games?q=k26game3', headers: { cookie } });
+    expect(search.body).toContain('VSTEP Quest');
+    expect(search.body).not.toContain('English Detective');
+    for (const url of ['/admin', '/admin/jobs', '/admin/tenants', '/admin/games', '/admin/audit', '/admin/setup', '/admin/platforms', '/admin/users']) {
+      const page = await hub.app.inject({ method: 'GET', url, headers: { cookie } });
+      expect(page.body, url).not.toContain('<script');
+      expect(page.body, url).toContain('for="navtoggle"');
+      expect(page.body, url).toContain('aria-current="page"');
+    }
+    expect((await hub.app.inject({ method: 'GET', url: '/admin/login' })).body).not.toContain('<script');
+  });
+});
