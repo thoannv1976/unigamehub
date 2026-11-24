@@ -12,7 +12,8 @@
     "start": "node src/server.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "register-platform": "node scripts/register-platform.ts"
+    "register-platform": "node scripts/register-platform.ts",
+    "create-admin": "node scripts/create-admin.ts"
   },
   "dependencies": {
     "@fastify/formbody": "^8.0.2",

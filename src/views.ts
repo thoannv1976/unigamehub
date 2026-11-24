@@ -19,7 +19,8 @@ main.wide{max-width:1180px}
 nav.admin{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin:0 0 16px;padding-bottom:12px;border-bottom:1px solid var(--line)}
 nav.admin a{color:var(--ink);text-decoration:none;padding:6px 10px;border-radius:6px}nav.admin a:hover{background:var(--card)}
 nav.admin a.on{background:var(--accent);color:#fff}nav.admin .brand{font-weight:700;margin-right:12px}
-nav.admin form{margin-left:auto}button.link{background:none;color:var(--muted);padding:6px 10px;font-weight:500}
+nav.admin .me{margin-left:auto;display:flex;align-items:center;gap:4px}nav.admin .who{color:var(--muted);font-size:14px}nav.admin .who a{padding:2px 4px}
+form.inline{display:inline}td.actions{white-space:nowrap}td.actions form{margin:2px 0}button.danger{background:var(--err)}pre.secret{font-size:20px;letter-spacing:1px;user-select:all}button.link{background:none;color:var(--muted);padding:6px 10px;font-weight:500}
 button.small{padding:4px 10px;font-size:13px}
 .stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
 .stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px}.stat b{display:block;font-size:26px}
@@ -47,12 +48,23 @@ export const ADMIN_NAV: Array<[string, string]> = [
   ['/admin/audit', 'Nhật ký'],
 ];
 
-/** Admin console page: navigation bar + logout form (CSRF-protected). No scripts. */
-export function adminPage(title: string, active: string, csrf: string, body: string): string {
-  const links = ADMIN_NAV.map(([href, label]) => `<a href="${href}"${href === active ? ' class="on"' : ''}>${esc(label)}</a>`).join('');
-  const nav = `<nav class="admin"><span class="brand">UniGame Hub</span>${links}
-<form method="post" action="/admin/logout"><input type="hidden" name="csrf" value="${esc(csrf)}"><button class="link">Đăng xuất</button></form></nav>`;
-  return page(`${title} · UniGame Hub`, `${nav}<h1>${esc(title)}</h1>${body}`, { wide: true });
+export interface AdminViewer {
+  csrf: string;
+  username: string;
+  displayName: string;
+  role: 'owner' | 'admin';
+  viaToken: boolean;
+}
+
+/** Admin console page: navigation bar (role-aware) + signed-in account + logout form (CSRF-protected). No scripts. */
+export function adminPage(title: string, active: string, who: AdminViewer, body: string): string {
+  const nav = who.role === 'owner' ? [...ADMIN_NAV, ['/admin/users', 'Tài khoản'] as [string, string]] : ADMIN_NAV;
+  const links = nav.map(([href, label]) => `<a href="${href}"${href === active ? ' class="on"' : ''}>${esc(label)}</a>`).join('');
+  const name = who.viaToken ? 'Mã khẩn cấp' : who.displayName;
+  const account = `<span class="who">${esc(name)}${who.viaToken ? '' : ` · <a href="/admin/password"${active === '/admin/password' ? ' class="on"' : ''}>Đổi mật khẩu</a>`}</span>`;
+  const nav_ = `<nav class="admin"><span class="brand">UniGame Hub</span>${links}
+<div class="me">${account}<form method="post" action="/admin/logout"><input type="hidden" name="csrf" value="${esc(who.csrf)}"><button class="link">Đăng xuất</button></form></div></nav>`;
+  return page(`${title} · UniGame Hub`, `${nav_}<h1>${esc(title)}</h1>${body}`, { wide: true });
 }
 
 export function errorPage(title: string, detail: string): string {
