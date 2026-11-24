@@ -76,3 +76,13 @@ Xem `.env.example`.
   tài khoản dịch vụ `github-deployer` (run.developer, artifactregistry.writer trên repo `cloud-run-source-deploy`, actAs `unigame-hub`).
 - Rollback: `gcloud run services update-traffic unigame-hub --region asia-southeast1 --project gamehub-514101 --to-revisions=<revision>=100`.
 - `deploy/deploy-cloudrun.sh` chỉ dùng khi dựng service mới: nó dùng `--set-env-vars` nên sẽ ghi đè toàn bộ env hiện có.
+
+## Tài khoản quản trị
+
+- Trang `/admin` đăng nhập bằng **tên đăng nhập + mật khẩu** (scrypt, Firestore `admin_users`). Phiên 8 giờ, CSRF trên mọi form.
+- Vai trò: **Chủ hệ thống** (`owner`, quản lý tài khoản ở `/admin/users`) và **Quản trị viên** (`admin`, mọi chức năng còn lại).
+- Tài khoản mới nhận mật khẩu tạm (hiện một lần) và phải đổi ở lần đăng nhập đầu. Sai mật khẩu 5 lần → khóa 15 phút; sai 10 lần/IP/15 phút → chặn IP.
+- Luôn còn ít nhất một Chủ hệ thống hoạt động; không tự hạ quyền/vô hiệu hóa chính mình.
+- **Tài khoản đầu tiên / khẩn cấp:** mở `/admin/login?mode=token`, nhập `ADMIN_TOKEN` (Secret Manager `hub-admin-token`), vào **Tài khoản** để tạo.
+  Hoặc dòng lệnh: `ADMIN_TOKEN=… npm run create-admin -- --username=<ten> --role=owner --hub=<URL>`.
+- API JSON `/api/v1/admin/*` vẫn dùng header `x-admin-token`.

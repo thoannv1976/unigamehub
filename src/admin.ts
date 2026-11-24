@@ -1,6 +1,7 @@
 import { timingSafeEqual } from 'node:crypto';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { z } from 'zod';
+import { createUser, passwordProblem, tempPassword, UserInput } from './adminUsers.ts';
 import { audit, type Deps } from './deps.ts';
 import { PlatformInput, upsertPlatform, type Platform, type Tenant } from './lti/platforms.ts';
 import type { SyncJob } from './results.ts';
@@ -96,6 +97,21 @@ export function registerAdminRoutes(app: FastifyInstance, deps: Deps, sync: Grad
     if (!job) throw new HttpError(404, 'not_found', 'Job not found');
     sync.kick();
     return job;
+  });
+
+  /** Creates a console account (bootstrap / scripts). Without a password a temporary one is generated and returned once. */
+  app.post('/api/v1/admin/users', async (req, reply) => {
+    requireAdmin(req);
+    const input = UserInput.parse(req.body);
+    if (input.username === 'admin-token') throw new HttpError(400, 'reserved', 'Reserved username');
+    const generated = !input.password;
+    const password = input.password || tempPassword();
+    const problem = passwordProblem(password, input.username);
+    if (problem) throw new HttpError(400, 'weak_password', problem);
+    const user = await createUser(store, { ...input, password, mustChangePassword: true, createdBy: 'api' });
+    if (!user) throw new HttpError(409, 'exists', 'User already exists');
+    await audit(deps, null, 'admin_user_created', { actor: 'admin-token', username: user.username, role: user.role, via: 'api' });
+    return reply.status(201).send({ username: user.username, role: user.role, mustChangePassword: true, ...(generated ? { temporaryPassword: password } : {}) });
   });
 
   /** For Cloud Scheduler on Cloud Run (instances may be idle between requests). */

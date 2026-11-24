@@ -39,4 +39,6 @@ export const COL = {
   demoTickets: 'demo_used_tickets',
   demoSessions: 'demo_sessions',
   adminSessions: 'admin_sessions',
+  adminUsers: 'admin_users',
+  loginThrottle: 'admin_login_throttle',
 } as const;
