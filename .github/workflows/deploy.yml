@@ -1,0 +1,82 @@
+# CI for every PR; build + deploy to Cloud Run on every push to main.
+# Auth: Workload Identity Federation (no JSON keys). The provider only accepts
+# repo thoannv1976/unigamehub on refs/heads/main.
+# Deploy swaps the image only: env vars and secrets on the service are kept as they are
+# (see deploy/cloudrun-service.yaml for a snapshot).
+name: CI / Deploy
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PROJECT_ID: gamehub-514101
+  REGION: asia-southeast1
+  SERVICE: unigame-hub
+  IMAGE: asia-southeast1-docker.pkg.dev/gamehub-514101/cloud-run-source-deploy/unigame-hub
+  WIF_PROVIDER: projects/423573033950/locations/global/workloadIdentityPools/github/providers/unigamehub
+  DEPLOY_SA: github-deployer@gamehub-514101.iam.gserviceaccount.com
+  SERVICE_URL: https://unigame-hub-423573033950.asia-southeast1.run.app
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run typecheck
+      - run: npm test
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.DEPLOY_SA }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Build and push image
+        run: |
+          gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+          docker build -t "${IMAGE}:${GITHUB_SHA}" .
+          docker push "${IMAGE}:${GITHUB_SHA}"
+
+      - name: Deploy to Cloud Run (image only, env and secrets unchanged)
+        run: |
+          gcloud run deploy "${SERVICE}" --quiet \
+            --project="${PROJECT_ID}" --region="${REGION}" \
+            --image="${IMAGE}:${GITHUB_SHA}" \
+            --update-labels="commit-sha=${GITHUB_SHA::12},deployed-by=github-actions"
+
+      - name: Smoke test
+        run: |
+          for i in 1 2 3 4 5; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "${SERVICE_URL}/admin/login")
+            echo "GET /admin/login -> ${code}"
+            [ "$code" = "200" ] && exit 0
+            sleep 5
+          done
+          echo "Smoke test failed" >&2
+          exit 1

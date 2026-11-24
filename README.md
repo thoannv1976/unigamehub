@@ -63,3 +63,16 @@ Hub bảo đảm: điểm cũ không đè điểm mới; gửi trùng không t�
 - **Moodle / LMS**, **Game**, **Cấu hình LTI**, **Nhật ký**: chỉ xem.
 
 Xem `.env.example`.
+
+## Deploy
+
+- Mỗi PR: GitHub Actions chạy `typecheck` + `test` (`.github/workflows/deploy.yml`).
+- Mỗi commit vào `main`: test → build image (tag = commit SHA) → push Artifact Registry → `gcloud run deploy --image` → smoke test.
+  Revision được gắn nhãn `commit-sha`, xem bằng:
+  `gcloud run revisions list --service unigame-hub --region asia-southeast1 --project gamehub-514101 --format="table(metadata.name,metadata.labels.commit-sha)"`
+- CI chỉ đổi image: biến môi trường (`GAMES_ENABLED`, `GAME_LAUNCH_URL_*`) và secret giữ nguyên trên service.
+  Bản chụp cấu hình: `deploy/cloudrun-service.yaml`. Đổi env/secret: `gcloud run services update unigame-hub --update-env-vars …`.
+- Xác thực GCP: Workload Identity Federation (pool `github`, provider `unigamehub`, chỉ nhận repo này trên `refs/heads/main`),
+  tài khoản dịch vụ `github-deployer` (run.developer, artifactregistry.writer trên repo `cloud-run-source-deploy`, actAs `unigame-hub`).
+- Rollback: `gcloud run services update-traffic unigame-hub --region asia-southeast1 --project gamehub-514101 --to-revisions=<revision>=100`.
+- `deploy/deploy-cloudrun.sh` chỉ dùng khi dựng service mới: nó dùng `--set-env-vars` nên sẽ ghi đè toàn bộ env hiện có.

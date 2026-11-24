@@ -1,0 +1,148 @@
+# Snapshot of the live Cloud Run service (reference only; CI does not apply it).
+# Refresh: gcloud run services describe unigame-hub --region asia-southeast1 --project gamehub-514101 --format export > deploy/cloudrun-service.yaml
+# Contains secret NAMES only, never secret values.
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  annotations:
+    run.googleapis.com/build-enable-automatic-updates: 'false'
+    run.googleapis.com/build-id: 69478485-1131-4e97-b7af-5f838dc75cb7
+    run.googleapis.com/build-image-uri: asia-southeast1-docker.pkg.dev/gamehub-514101/cloud-run-source-deploy/unigame-hub
+    run.googleapis.com/build-name: projects/423573033950/locations/asia-southeast1/builds/69478485-1131-4e97-b7af-5f838dc75cb7
+    run.googleapis.com/build-source-location: gs://run-sources-gamehub-514101-asia-southeast1/services/unigame-hub/1794729390.687052-97205283eeb04b9789cbd791463029ac.zip#1794729392679317
+    run.googleapis.com/ingress: all
+    run.googleapis.com/ingress-status: all
+    run.googleapis.com/maxScale: '5'
+    run.googleapis.com/urls: '["https://unigame-hub-423573033950.asia-southeast1.run.app","https://unigame-hub-2kofwnlliq-as.a.run.app"]'
+  labels:
+    cloud.googleapis.com/location: asia-southeast1
+    run.googleapis.com/satisfiesPzs: 'true'
+  name: unigame-hub
+  namespace: '423573033950'
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/maxScale: '5'
+        run.googleapis.com/client-name: gcloud
+        run.googleapis.com/client-version: 567.0.0
+        run.googleapis.com/startup-cpu-boost: 'true'
+      labels:
+        client.knative.dev/nonce: czmezggbfg
+        run.googleapis.com/startupProbeType: Default
+    spec:
+      containerConcurrency: 80
+      containers:
+      - env:
+        - name: HUB_ENV
+          value: prod
+        - name: HUB_STORE
+          value: firestore
+        - name: FIRESTORE_PROJECT
+          value: gamehub-514101
+        - name: HUB_BASE_URL
+          value: https://unigame-hub-423573033950.asia-southeast1.run.app
+        - name: HUB_SELF_URL
+          value: https://unigame-hub-423573033950.asia-southeast1.run.app
+        - name: GAMES_ENABLED
+          value: demo,k26game1,k26game2,k26game3,classinteractive,smartwatch6,smartwatch9,casestudyhub,k26oral,digimark,ecomoctgames
+        - name: GAME_LAUNCH_URL_K26GAME1
+          value: https://k26game1.web.app/lti-launch
+        - name: GAME_LAUNCH_URL_K26GAME2
+          value: https://k26-detective.web.app/lti-launch
+        - name: GAME_LAUNCH_URL_K26GAME3
+          value: https://k26-vstep.web.app/lti-launch
+        - name: GAME_LAUNCH_URL_CLASSINTERACTIVE
+          value: https://classinteractive.web.app/lti-launch
+        - name: GAME_LAUNCH_URL_CASESTUDYHUB
+          value: https://casestudyhub.web.app/lti-launch
+        - name: GAME_LAUNCH_URL_K26ORAL
+          value: https://k26oral.web.app/lti-launch
+        - name: GAME_LAUNCH_URL_DIGIMARK
+          value: https://digimark-514506.web.app/lti-launch
+        - name: GAME_LAUNCH_URL_ECOMOCTGAMES
+          value: https://ecomoctgames.web.app/lti-launch
+        - name: HUB_SIGNING_KEYS
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: hub-signing-keys
+        - name: ADMIN_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: hub-admin-token
+        - name: GAME_SECRET_CASESTUDYHUB
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: game-secret-casestudyhub
+        - name: GAME_SECRET_CLASSINTERACTIVE
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: game-secret-classinteractive
+        - name: GAME_SECRET_DEMO
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: game-secret-demo
+        - name: GAME_SECRET_DIGIMARK
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: game-secret-digimark
+        - name: GAME_SECRET_ECOMOCTGAMES
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: game-secret-ecomoctgames
+        - name: GAME_SECRET_K26GAME1
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: game-secret-k26game1
+        - name: GAME_SECRET_K26GAME2
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: game-secret-k26game2
+        - name: GAME_SECRET_K26GAME3
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: game-secret-k26game3
+        - name: GAME_SECRET_K26ORAL
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: game-secret-k26oral
+        - name: GAME_SECRET_SMARTWATCH6
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: game-secret-smartwatch6
+        - name: GAME_SECRET_SMARTWATCH9
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: game-secret-smartwatch9
+        image: asia-southeast1-docker.pkg.dev/gamehub-514101/cloud-run-source-deploy/unigame-hub@sha256:bf138dff3f6d992ff0d091897ce8cd75da268042b7439354c3537d5221a212d0
+        ports:
+        - containerPort: 8080
+          name: http1
+        resources:
+          limits:
+            cpu: '1'
+            memory: 512Mi
+        startupProbe:
+          failureThreshold: 1
+          periodSeconds: 240
+          tcpSocket:
+            port: 8080
+          timeoutSeconds: 240
+      serviceAccountName: unigame-hub@gamehub-514101.iam.gserviceaccount.com
+      timeoutSeconds: 60
+  traffic:
+  - latestRevision: true
+    percent: 100
